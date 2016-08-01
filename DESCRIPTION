@@ -1,0 +1,27 @@
+Package: histry
+Type: Package
+Title: Enhanced command history tracking for R sessions and dynamic documents
+Version: 0.0.1
+Date: 2016-08-01
+Author@R: person("Gabriel", "Becker", role = c("aut", "cre"),
+        email = "becker.gabriel@gene.com")
+Copyright: Genentech Inc
+Maintainer: Gabriel Becker <becker.gabriel@gene.com>
+Description: Automatically tracks and makes programmatically available code
+    evaluation history in R sessions and dynamic documents.
+License: Artistic-2.0
+Depends:
+    methods
+Suggests:
+    CodeDepends,
+    rmarkdown,
+    knitr
+Imports:
+    fastdigest
+VignetteBuilder: knitr
+Collate:
+    'allClasses.R'
+    'history.R'
+    'tracking.R'
+    'zzz.R'
+RoxygenNote: 5.0.1
