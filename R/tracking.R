@@ -1,11 +1,4 @@
-##' @title histry session options environment
-##' Environment where the default history tracker is set
-##' Users should not directly set or retrieve things from this environemnt,
-##' it is exported for use by packages that use histry.
-##' @export
 
-histropts = new.env()
-histropts$history=NULL
 
 ##' @title is history tracking on
 ##' @return logical indicating whether history is currently being tracked.
@@ -41,3 +34,26 @@ trackHistory = function( tracker = NULL) {
     invisible(NULL)
 
 }
+
+
+##' histry
+##'
+##' These functions return the set of successfully evaluated expressions (\code{histry})
+##' and the \code{HistoryTracker} object (\code{histry_tracker}) for the current context.
+##'
+##' This means that when called during a knitr-based weaving process, the
+##' expressions will be those previously evaluted durign that process, and the
+##' tracker will be a KnitrHistoryTracker. When called outside of the weaving
+##' context, the top-level-expression history and history tracker will be returned,
+##' respectively.
+##'
+##' @return A list of R code expressions for \code{histry} and a HistoryTracker
+##' object for \code{histry_tracker}
+##' @rdname histry
+##' @export
+
+histry = function() histry_tracker()$exprs
+
+##' @rdname histry
+##' @export
+histry_tracker = function() histropts$history

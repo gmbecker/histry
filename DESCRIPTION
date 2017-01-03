@@ -3,7 +3,7 @@ Type: Package
 Title: Enhanced command history tracking for R sessions and dynamic documents
 Version: 0.0.1
 Date: 2016-08-01
-Author@R: person("Gabriel", "Becker", role = c("aut", "cre"),
+Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
 Copyright: Genentech Inc
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>

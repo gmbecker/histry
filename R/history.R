@@ -4,22 +4,27 @@
 #' @return A HistoryTracker object
 #' @rdname tracker-constructors
 #' @export
-history_tracker = function(id = "history_tracker") {
+historyTracker = function(id = "history_tracker") {
     h_tracker$new(id = id)
 }
 
 #' @rdname tracker-constructors
 #' @aliases knitr_tracker
 #' @export
-knitr_tracker = function() {
+knitrTracker = function() {
     kh_tracker$new()
 }
 
 setMethod("show", "VirtHistoryTracker",
           function(object) {
 
+    if(is.language(object$exprs) && length(object$exprs) >0)
+        msg = deparse(object$exprs)
+    else if (length(object$exprs) > 1)
+        msg = paste(tail(object$exprs,5), collapse="\n")
+    else
+        msg = "No messages in history record"
     cat("A history tracker of class", class(object), "\nRecent expressions:",
-        paste(tail(object$exprs, 5), collapse = "\n"),
-        "\n(For full history do obj$exprs)\n")
+        msg, "\n(For full history do obj$exprs)\n")
 })
 
