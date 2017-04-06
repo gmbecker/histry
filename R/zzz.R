@@ -24,8 +24,6 @@ initState = function() {
     namespaceExport(ns, "histropts")
     tmp = histry::histropts
     initState()
-#    if(!is.null(getOption("knitr.in.progress")))
-#        stop("thingthangs")
     NULL
   
 }

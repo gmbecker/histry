@@ -9,6 +9,7 @@ ht_callback = function(expr, value, success, printed, tracker) {
 
 
 ignorepattern = "^.ess"
+    
 #' @name HistoryTracker
 #' @title A reference class for tracking code history
 #' @docType methods
@@ -21,7 +22,9 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                                    hashes = "character",
                                    tracking = "logical"),
                         methods = list(
-                            addInfo = function(expr, class, hash) {
+                            addInfo = function(expr, class, hash, envir = .GlobalEnv) {
+
+                          
                             if(is.character(expr) && length(expr) > 1)
                                 expr = paste(expr, collapse="\n")
 
@@ -32,6 +35,20 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                             else
                                 .self$exprs = c(.self$exprs, expr)
                             .self$classes = c(.self$classes, class)
+
+                            if(is.character(expr))
+                                pexpr = parse(text = expr)
+                            else if(is.expression(expr))
+                                pexpr = expr[[1]]
+                            else
+                                pexpr = expr
+                            ## if(CodeDepends:::isAssignment(pexpr)) {
+                            ##     message("dealing with assignment")
+                            ##     sym = as.character(pexpr[[2]])
+                            ##     assign(sym, structure(get(sym, envir),
+                            ##            fullcode = .self$exprs), envir = envir)
+                            ## }
+                            
                         },
                         toggleTracking = function() stop("Not implemented on virtual class"),
                         clear = function() {
@@ -42,7 +59,7 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                         filter = function(syms = ls(ns, all.names=TRUE), ns = emptyenv()) {
                             
 
-
+                            
                         }))
 
 
@@ -85,72 +102,80 @@ h_tracker = setRefClass("HistoryTracker",
 
 ##' @title knitr history tracking
 ##'
-##' These functions turn on history tracking within the knitr weaving
-##' process. \code{knitrtracer} does so from the R session, whereas
-##' \code{hist_within_doc} is meant to be called within the first
-##' code block of a knitr document.
+##' These functions are exported due to the vagaries of how tracing
+##' functions works in R. Knitr history support is now turned on when
+##' the histry package is loaded; They should never be called directly
+##' by an end user.
 ##' 
 ##'
-##'
 ##' @param on logical. Should tracking be turned on (TRUE) or off (FALSE)
-##' @rdname knitrhist
+##' @param record logical. Should visibly printed results within the weaving
+##' process be recorded (if trackr is available).
+##' @rdname tracers
 ##' @export
-knitrtracer = function(on) {
+knitrtracer = function(on, record = FALSE) {
     if(!require("evaluate") || !require("knitr"))
         return(NULL)
     
     if(on) {
-        
-        suppressMessages(trace("knit",
-              where = asNamespace("knitr"),
-              trace = quote(histry:::evaltracer(TRUE)),
-              exit = quote(histry:::evaltracer(FALSE)),
-              print=FALSE))
+        if(!record) {
+            suppressMessages(trace("knit",
+                                   where = asNamespace("knitr"),
+                                   trace = quote(histry:::evaltracer(TRUE)),
+                                   exit = quote(histry:::evaltracer(FALSE)),
+                                   print=FALSE))
+        } else {
+            suppressMessages(trace("knit",
+                                   where = asNamespace("knitr"),
+                                   trace = quote(histry:::evaltracer(TRUE, record = TRUE)),
+                                   exit = quote(histry:::evaltracer(FALSE)),
+                                   print=FALSE))
+        }
     } else {
         suppressMessages(untrace("knit",
                 where = asNamespace("knitr")))
     }
 }
 
-##' @rdname knitrhist
-##' @export
-
-hist_within_doc = function() {
-    ## if(is(histropts$history, "KnitrHistoryTracker")) {
-    ##     histropts$history$clear()
-    ## } else {
-    ##     stop("must pre-create  a KnitrHistoryTracker via knitr_trackr() before calling hist_within_doc")
-    ## }
-    evaltracer(TRUE)
-    addTaskCallback(function(...) {
-        evaltracer(FALSE)
-        FALSE
-    })
-}
-
-
 ##' evaltracer
 ##'
-##' This function is exported due to vagaries of how tracing works. It should not
-##' ever be called directly by the end user
-##'@param on logical. Are we turning evaluation tracing on or off?
+##' @rdname tracers
 ##' @export
-evaltracer = function(on=TRUE) {
-     if(on) {
+evaltracer = function(on=TRUE, record = FALSE) {
+    if(on) {
+        if(record)
+            stopifnot(requireNamespace("trackr"))
         histropts$inKnitr = TRUE
         histropts$history$clear()
-        suppressMessages(trace("evaluate_call",
-              where = asNamespace("evaluate"),
-              at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-              tracer = quote(if(!is(ev$value, "try-error")) {
-                                 histropts$history$addInfo(expr = expr,
-                                                   class = class(ev$value))
-                             }),
-              print = FALSE
-              )
-              )
+        if(record) {
+            suppressMessages(trace("evaluate_call",
+                                   where = asNamespace("evaluate"),
+                                   at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
+                                   tracer = quote(if(!is(ev$value, "try-error")) {
+                                                      expr2 = deparse(expr)
+                                                      histropts$history$addInfo(expr = expr2,
+                                                                                class = class(ev$value))
+                                                      if(ev$visible)
+                                                          record(ev$value, symorpos = length(histropts$history$exprs))
+                                                  }),
+                                   print = FALSE
+                                   )
+                             )
+        } else {
+            suppressMessages(trace("evaluate_call",
+                                   where = asNamespace("evaluate"),
+                                   at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
+                                   tracer = quote(if(!is(ev$value, "try-error")) {
+                                                      expr2 = deparse(expr)
+                                                      histropts$history$addInfo(expr = expr2,
+                                                                                class = class(ev$value))
+                                                  }),
+                                   print = FALSE
+                                   )
+                             )
+        }            
     } else {
-        histropts$inKnitr = FALSE
+    ##    histropts$inKnitr = FALSE
         suppressMessages(untrace("evaluate_call",
                                  where = asNamespace("evaluate"))
                          )
@@ -175,18 +200,7 @@ kh_tracker = setRefClass("KnitrHistoryTracker",
                                              classes = .classes, ...)
                              obj$tracking=TRUE
                              obj
-                         }## ,
-                         ## toggleTracking = function() {
-                                          
-                         ##     if (.self$tracking) {
-                         ##         evaltracer(FALSE)
-                         ##     } else {
-                         ##         force(.self)
-                         ##         if(!identical(histropts$history, .self))
-                         ##             trackHistory(.self)
-                         ##         evaltracer(TRUE)
-                         ##     }
-                         ## }
+                         }
                          )
                          )
 
@@ -197,6 +211,8 @@ state = setRefClass("HistryState",
                                 knitrHistory = "KnitrHistoryTrackerOrNULL",
                                 inKnitr = "logical",
                                 history = function(val) {
+                      if(length(.self$inKnitr) == 0 || is.na(.self$inKnitr))
+                          .self$inKnitr = getOption("knitr.in.progress", FALSE)
                       if(missing(val)) {
                           if(.self$inKnitr)
                               .self$knitrHistory

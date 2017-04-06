@@ -1,3 +1,11 @@
+---
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An introduction to histry}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
 # A minimal R Markdown example
 
 A quote:
@@ -39,13 +47,6 @@ Yes I know the value of pi is `r pi`, and 2 times pi is `r 2*pi`.
 Sigh. You cannot live without math equations. OK, here we go: $\alpha+\beta=\gamma$. Note this is not supported by native markdown. You probably want to try RStudio, or at least the R package **markdown**, or the function `knitr::knit2html()`.
 
 ## nested code chunks
----
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{An introduction to histry}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
----
 
 
 You can write code within other elements, e.g. a list
