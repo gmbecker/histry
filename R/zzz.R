@@ -1,14 +1,7 @@
 initState = function() {
     knitrtracer(TRUE)
-    if(!is.null(getOption("knitr.in.progress"))) {
-        evaltracer(TRUE)
-        addTaskCallback(function(...) {
-            histry:::evaltracer(FALSE)
-            FALSE
-        })
-    }
+    evaltracer(TRUE)
     
-
 }
 
 
@@ -26,4 +19,13 @@ initState = function() {
     initState()
     NULL
   
+}
+
+.onUnload = function(libname, pkgname, ...) {
+    nms = getTaskCallbackNames()
+    nms = grep("_tracker", nms, value=TRUE)
+    lapply(nms, removeTaskCallback)
+
+
+
 }

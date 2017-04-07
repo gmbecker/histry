@@ -24,4 +24,3 @@ tracker will be a KnitrHistoryTracker. When called outside of the weaving
 context, the top-level-expression history and history tracker will be returned,
 respectively.
 }
-

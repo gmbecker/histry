@@ -25,7 +25,7 @@ A _paragraph_ here. A code chunk below (remember the three backticks):
 
 ```{r}
 library(histry)
-1+1
+1+2
 .4-.7+.3 # what? it is not zero!
 ```
 

@@ -1,7 +1,7 @@
 Package: histry
 Type: Package
 Title: Enhanced command history tracking for R sessions and dynamic documents
-Version: 0.0.1
+Version: 0.0.2
 Date: 2016-08-01
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
@@ -24,4 +24,4 @@ Collate:
     'history.R'
     'tracking.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

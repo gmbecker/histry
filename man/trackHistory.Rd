@@ -12,4 +12,3 @@ a default tracker is set, toggle tracking with default tracker, otherwise
 set a default tracker. For a VirtHistoryTracker (subclass) set as
 the default tracker and turn it on.}
 }
-

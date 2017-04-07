@@ -16,4 +16,3 @@ knitrTracker()
 \value{
 A HistoryTracker object
 }
-

@@ -9,4 +9,3 @@ trackingHistory()
 \value{
 logical indicating whether history is currently being tracked.
 }
-

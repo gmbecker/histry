@@ -73,9 +73,10 @@ h_tracker = setRefClass("HistoryTracker",
                             initialize = function(id = "hist_tracker", .exprs = NULL,
                                                   .classes = character(), ...) {
                             exstcbs = getTaskCallbackNames()
-                               
-                            if(id %in% exstcbs)
-                                stop("A Task Callback of name ", id, "already exists")
+                            origid = id
+                            while(id %in% exstcbs)
+                                id = paste0(origid, digest(id))
+                            
                             obj = callSuper( exprs = .exprs, classes = .classes,
                                             ...)
                             obj$id = id
@@ -119,20 +120,21 @@ knitrtracer = function(on, record = FALSE) {
     
     if(on) {
         if(!record) {
-            suppressMessages(trace("knit",
-                                   where = asNamespace("knitr"),
-                                   trace = quote(histry:::evaltracer(TRUE)),
-                                   exit = quote(histry:::evaltracer(FALSE)),
+            ## evaltracer is always on now. Only reason to ever turn it off is to turn it back on immediately with different record value.
+            ## The tracer for evaluate:::evaluate_call now checks if we're in knitr, so no need to make sure it's off
+            ## in when we aren't.
+            suppressMessages(trace(knitr::knit,
+                                   ## where = asNamespace("knitr"),
+                                   trace = quote(if(!opts_knit$get("child")) histropts$knitrHistory$clear()),
                                    print=FALSE))
         } else {
-            suppressMessages(trace("knit",
+            suppressMessages(trace(knitr::knit,
                                    where = asNamespace("knitr"),
-                                   trace = quote(histry:::evaltracer(TRUE, record = TRUE)),
-                                   exit = quote(histry:::evaltracer(FALSE)),
+                                   trace = quote(if(!opts_knit$get("child")) histropts$knitrHistory$clear()),
                                    print=FALSE))
         }
     } else {
-        suppressMessages(untrace("knit",
+        suppressMessages(untrace(knitr::knit,
                 where = asNamespace("knitr")))
     }
 }
@@ -145,13 +147,13 @@ evaltracer = function(on=TRUE, record = FALSE) {
     if(on) {
         if(record)
             stopifnot(requireNamespace("trackr"))
-        histropts$inKnitr = TRUE
-        histropts$history$clear()
+        ## histropts$inKnitr = TRUE
+        ## histropts$history$clear()
         if(record) {
             suppressMessages(trace("evaluate_call",
                                    where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if(!is(ev$value, "try-error")) {
+                                   tracer = quote(if( histropts$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
                                                       histropts$history$addInfo(expr = expr2,
                                                                                 class = class(ev$value))
@@ -165,7 +167,7 @@ evaltracer = function(on=TRUE, record = FALSE) {
             suppressMessages(trace("evaluate_call",
                                    where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if(!is(ev$value, "try-error")) {
+                                   tracer = quote(if(histropts$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
                                                       histropts$history$addInfo(expr = expr2,
                                                                                 class = class(ev$value))
