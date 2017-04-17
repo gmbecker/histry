@@ -119,20 +119,14 @@ knitrtracer = function(on, record = FALSE) {
         return(NULL)
     
     if(on) {
-        if(!record) {
-            ## evaltracer is always on now. Only reason to ever turn it off is to turn it back on immediately with different record value.
-            ## The tracer for evaluate:::evaluate_call now checks if we're in knitr, so no need to make sure it's off
-            ## in when we aren't.
-            suppressMessages(trace(knitr::knit,
-                                   ## where = asNamespace("knitr"),
-                                   trace = quote(if(!opts_knit$get("child")) histropts$knitrHistory$clear()),
-                                   print=FALSE))
-        } else {
-            suppressMessages(trace(knitr::knit,
-                                   where = asNamespace("knitr"),
-                                   trace = quote(if(!opts_knit$get("child")) histropts$knitrHistory$clear()),
-                                   print=FALSE))
-        }
+        ## evaltracer is always on now. Only reason to ever turn it off is to turn it back on immediately with different record value.
+        ## The tracer for evaluate:::evaluate_call now checks if we're in knitr, so no need to make sure it's off
+        ## in when we aren't.
+        suppressMessages(trace(knitr::knit,
+                               where = asNamespace("knitr"),
+                               tracer = parse(text = 'if(!opts_knit$get("child")) histropts$knitrHistory$clear(); histropts$inKnitr = TRUE'),
+                               exit = quote(if(!opts_knit$get("child")) histropts$inKnitr = FALSE),
+                               print=FALSE))
     } else {
         suppressMessages(untrace(knitr::knit,
                 where = asNamespace("knitr")))
@@ -150,8 +144,8 @@ evaltracer = function(on=TRUE, record = FALSE) {
         ## histropts$inKnitr = TRUE
         ## histropts$history$clear()
         if(record) {
-            suppressMessages(trace("evaluate_call",
-                                   where = asNamespace("evaluate"),
+            suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
+                                   ##where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
                                    tracer = quote(if( histropts$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
@@ -164,8 +158,8 @@ evaltracer = function(on=TRUE, record = FALSE) {
                                    )
                              )
         } else {
-            suppressMessages(trace("evaluate_call",
-                                   where = asNamespace("evaluate"),
+            suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
+                                   ##where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
                                    tracer = quote(if(histropts$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
@@ -178,9 +172,10 @@ evaltracer = function(on=TRUE, record = FALSE) {
         }            
     } else {
     ##    histropts$inKnitr = FALSE
-        suppressMessages(untrace("evaluate_call",
-                                 where = asNamespace("evaluate"))
-                         )
+        ## suppressMessages(untrace("evaluate_call",
+        ##                          where = asNamespace("evaluate"))
+        ##                  )
+        suppressMessages(untrace(evaluate:::evaluate_call))
     }
 }
 

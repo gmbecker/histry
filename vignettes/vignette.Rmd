@@ -48,7 +48,6 @@ Sigh. You cannot live without math equations. OK, here we go: $\alpha+\beta=\gam
 
 ## nested code chunks
 
-
 You can write code within other elements, e.g. a list
 
 1. foo is good
