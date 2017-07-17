@@ -1,3 +1,5 @@
+set_histropts = function(val) histrstate$histropts <- val
+
 initState = function() {
     knitrtracer(TRUE)
     evaltracer(TRUE)
@@ -5,20 +7,13 @@ initState = function() {
 }
 
 
-.onLoad= function(libname, pkgName, ...) {
-  
-    ns <- asNamespace(pkgName)
-    
-    delayedAssign("histropts",
-                  { state$new(evalHistory = historyTracker("auto_tracker"),
-                            knitrHistory = knitrTracker(),
-                            inKnitr = !is.null(getOption("knitr.in.progress")))},
-                  eval.env = ns, assign.env = ns)
-    namespaceExport(ns, "histropts")
-    tmp = histry::histropts
+.onAttach = function(libname, pkgname, ...) {
+    stat = state$new(evalHistory = historyTracker("auto_tracker"),
+                     knitrHistory = knitrTracker(),
+                     inKnitr = !is.null(getOption("knitr.in.progress")))
+    set_histropts(stat)
     initState()
     NULL
-  
 }
 
 .onUnload = function(libname, pkgname, ...) {

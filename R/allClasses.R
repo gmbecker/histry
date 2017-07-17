@@ -1,4 +1,7 @@
 
+
+
+
 #' @importFrom fastdigest fastdigest
 ht_callback = function(expr, value, success, printed, tracker) {
     if(!success)
@@ -75,7 +78,7 @@ h_tracker = setRefClass("HistoryTracker",
                             exstcbs = getTaskCallbackNames()
                             origid = id
                             while(id %in% exstcbs)
-                                id = paste0(origid, digest(id))
+                                id = paste0(origid, fastdigest(id))
                             
                             obj = callSuper( exprs = .exprs, classes = .classes,
                                             ...)
@@ -124,8 +127,8 @@ knitrtracer = function(on, record = FALSE) {
         ## in when we aren't.
         suppressMessages(trace(knitr::knit,
                                where = asNamespace("knitr"),
-                               tracer = parse(text = 'if(!opts_knit$get("child")) histropts$knitrHistory$clear(); histropts$inKnitr = TRUE'),
-                               exit = quote(if(!opts_knit$get("child")) histropts$inKnitr = FALSE),
+                               tracer = parse(text = 'if(!opts_knit$get("child")) histropts()$knitrHistory$clear(); histry_setinknitr(TRUE)'),
+                               exit = quote(if(!opts_knit$get("child")) histry_setinknitr(FALSE)),
                                print=FALSE))
     } else {
         suppressMessages(untrace(knitr::knit,
@@ -141,18 +144,17 @@ evaltracer = function(on=TRUE, record = FALSE) {
     if(on) {
         if(record)
             stopifnot(requireNamespace("trackr"))
-        ## histropts$inKnitr = TRUE
-        ## histropts$history$clear()
+
         if(record) {
             suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
                                    ##where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if( histropts$inKnitr && !is(ev$value, "try-error")) {
+                                   tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
-                                                      histropts$history$addInfo(expr = expr2,
-                                                                                class = class(ev$value))
+                                                      histry_addinfo(expr = expr2,
+                                                                     class = class(ev$value))
                                                       if(ev$visible)
-                                                          record(ev$value, symorpos = length(histropts$history$exprs))
+                                                          record(ev$value, symorpos = length(histry()))
                                                   }),
                                    print = FALSE
                                    )
@@ -161,20 +163,16 @@ evaltracer = function(on=TRUE, record = FALSE) {
             suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
                                    ##where = asNamespace("evaluate"),
                                    at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if(histropts$inKnitr && !is(ev$value, "try-error")) {
+                                   tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
                                                       expr2 = deparse(expr)
-                                                      histropts$history$addInfo(expr = expr2,
-                                                                                class = class(ev$value))
+                                                      histry_addinfo(expr = expr2,
+                                                                     class = class(ev$value))
                                                   }),
                                    print = FALSE
                                    )
                              )
         }            
     } else {
-    ##    histropts$inKnitr = FALSE
-        ## suppressMessages(untrace("evaluate_call",
-        ##                          where = asNamespace("evaluate"))
-        ##                  )
         suppressMessages(untrace(evaluate:::evaluate_call))
     }
 }

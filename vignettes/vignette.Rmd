@@ -35,7 +35,7 @@ It is easy.
 
 ```{r}
 plot(1:10)
-hist(rnorm(1000))
+hist(rnorm(1010))
 ```
 
 ## inline code
@@ -69,6 +69,5 @@ Or inside blockquotes:
 
 
 ```{r}
-if(exists("histropts"))
-	histropts$history$exprs
+	histry()
 ```

@@ -1,7 +1,7 @@
 Package: histry
 Type: Package
 Title: Enhanced command history tracking for R sessions and dynamic documents
-Version: 0.0.2.1
+Version: 0.0.2.2
 Date: 2016-08-01
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
@@ -20,6 +20,7 @@ Imports:
     fastdigest
 VignetteBuilder: knitr
 Collate:
+    '00first.R'
     'allClasses.R'
     'history.R'
     'tracking.R'

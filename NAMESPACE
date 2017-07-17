@@ -2,7 +2,10 @@
 
 export(evaltracer)
 export(historyTracker)
+export(histropts)
 export(histry)
+export(histry_addinfo)
+export(histry_setinknitr)
 export(histry_tracker)
 export(knitrTracker)
 export(knitrtracer)
