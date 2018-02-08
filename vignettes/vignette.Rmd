@@ -6,6 +6,21 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+# Tracking expression history with the `histry` package
+
+To turn on history tracking, we simply load the `histry` package:
+
+```{r}
+library(histry)
+```
+
+After this, all successfully executed top-level expressions will be tracked, both in the interactive session and within the weaving/rendering of dynamic reports by `knitr` or `rmarkdown`.
+
+We now include the content of the minimal Rmd example  from the knitr documentation. At the end of this vignette we will call `histry()` to see that it captured all of evaluated expressions.
+
+
+*Start content from 001-minimal.Rmd by Yehui Xie*
+
 # A minimal R Markdown example
 
 A quote:
@@ -24,7 +39,6 @@ See [output here](https://github.com/yihui/knitr-examples/blob/master/001-minima
 A _paragraph_ here. A code chunk below (remember the three backticks):
 
 ```{r}
-library(histry)
 1+2
 .4-.7+.3 # what? it is not zero!
 ```
@@ -65,8 +79,9 @@ Or inside blockquotes:
 > rev(x^2)
 > ```
 
-## conclusion
+*end content from 001-minimal.Rmd by Yehui Xie*
 
+# Viewing the expression history
 
 ```{r}
 	histry()

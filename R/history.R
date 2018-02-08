@@ -1,5 +1,8 @@
 
 #' @title Construct and activate a HistoryTracker object
+#' @description Constructors for the HistoryTrackr family of objects.
+#' @note Generally end-users should never need to call these functions directly. Simply
+#' loading the histry package should provide them with history tracking.
 #' @param id character. The id of the taskback
 #' @return A HistoryTracker object
 #' @rdname tracker-constructors

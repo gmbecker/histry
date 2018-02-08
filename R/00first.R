@@ -1,7 +1,8 @@
 histrstate = new.env()
 histrstate$histropts = NULL
 
-#' @export
+##' @rdname histry
+##' @export
 histropts = function() histrstate$histropts
 
 
@@ -16,6 +17,9 @@ histropts = function() histrstate$histropts
 ##' context, the top-level-expression history and history tracker will be returned,
 ##' respectively.
 ##'
+##' @param \dots Info to be added
+##' @param val Logical value indicating whether the evaluation context is currently
+##' in a knitr/rmarkdown.
 ##' @return A list of R code expressions for \code{histry} and a HistoryTracker
 ##' object for \code{histry_tracker}
 ##' @rdname histry

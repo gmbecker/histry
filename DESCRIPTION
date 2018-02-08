@@ -1,6 +1,6 @@
 Package: histry
 Type: Package
-Title: Enhanced command history tracking for R sessions and dynamic documents
+Title: Enhanced Command History Tracking for R Sessions and Dynamic Documents
 Version: 0.0.2.2
 Date: 2016-08-01
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
@@ -15,7 +15,9 @@ Depends:
 Suggests:
     CodeDepends,
     rmarkdown,
-    knitr
+    knitr,
+    trackr,
+    evaluate
 Imports:
     fastdigest
 VignetteBuilder: knitr

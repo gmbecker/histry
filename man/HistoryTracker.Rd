@@ -4,5 +4,14 @@
 \name{HistoryTracker}
 \alias{HistoryTracker}
 \alias{vh_tracker}
+\alias{VirtHistoryTracker-class}
+\alias{HistoryTracker-class}
+\alias{h_tracker}
+\alias{KnitrHistoryTracker}
+\alias{kh_tracker}
+\alias{KnitrHistoryTracker-class}
 \title{A reference class for tracking code history}
+\description{
+These classes implement history tracking in various contexts
+}
 

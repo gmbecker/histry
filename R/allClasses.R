@@ -1,4 +1,5 @@
-
+#' @import methods
+#' @importFrom utils tail
 
 
 
@@ -14,9 +15,12 @@ ht_callback = function(expr, value, success, printed, tracker) {
 ignorepattern = "^.ess"
     
 #' @name HistoryTracker
+#' @description These classes implement history tracking in various contexts
 #' @title A reference class for tracking code history
 #' @docType methods
-#' @exportClass "HistoryTracker"
+#' @exportClass VirtHistoryTracker
+#' @rdname HistoryTracker
+#' @aliases VirtHistoryTracker-class
 
 vh_tracker = setRefClass("VirtHistoryTracker",
                         fields = c(
@@ -45,12 +49,7 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                                 pexpr = expr[[1]]
                             else
                                 pexpr = expr
-                            ## if(CodeDepends:::isAssignment(pexpr)) {
-                            ##     message("dealing with assignment")
-                            ##     sym = as.character(pexpr[[2]])
-                            ##     assign(sym, structure(get(sym, envir),
-                            ##            fullcode = .self$exprs), envir = envir)
-                            ## }
+                            
                             
                         },
                         toggleTracking = function() stop("Not implemented on virtual class"),
@@ -66,7 +65,10 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                         }))
 
 
-
+#' @rdname HistoryTracker
+#' @docType methods
+#' @exportClass HistoryTracker
+#' @aliases HistoryTracker-class
 h_tracker = setRefClass("HistoryTracker",
                         contains = "VirtHistoryTracker",
                         fields = c(
@@ -77,12 +79,13 @@ h_tracker = setRefClass("HistoryTracker",
                                                   .classes = character(), ...) {
                             exstcbs = getTaskCallbackNames()
                             origid = id
-                            while(id %in% exstcbs)
-                                id = paste0(origid, fastdigest(id))
+                            id2 = id
+                            while(id2 %in% exstcbs)
+                                id2 = paste0(origid, fastdigest(id2))
                             
                             obj = callSuper( exprs = .exprs, classes = .classes,
                                             ...)
-                            obj$id = id
+                            obj$id = id2
                             obj$tracking = FALSE
                             obj$toggleTracking()
                             obj
@@ -118,7 +121,7 @@ h_tracker = setRefClass("HistoryTracker",
 ##' @rdname tracers
 ##' @export
 knitrtracer = function(on, record = FALSE) {
-    if(!require("evaluate") || !require("knitr"))
+    if(!requireNamespace("evaluate") || !requireNamespace("knitr"))
         return(NULL)
     
     if(on) {
@@ -136,53 +139,87 @@ knitrtracer = function(on, record = FALSE) {
     }
 }
 
+obfu_colons = eval(parse(text = paste0("`", paste(rep(":", times=3),collapse = ""), "`")))
+ev_call_txt = paste0("evaluate:", "::evaluate_call")
+ev_call_expr = parse(text = ev_call_txt)
+ev_call_untrace = parse(text = paste0("untrace(", ev_call_txt, ")"))
+
+trc_code_txt = function(record) {
+    paste(c(paste0("suppressMessages(trace(evaluate::", ":evaluate_call,"),
+      "at = length(body(", paste0("evaluate::", ":evaluate_call"), ")),",
+      "tracer = quote(if( histropts()$inKnitr && !is(ev$value, 'try-error')) {",
+      "                                                     expr2 = deparse(expr)",
+      "                                                      histry_addinfo(expr = expr2,",
+      "                                                              class = class(ev$value))",
+      if(record) { paste(
+      "                                                      if(ev$visible)",
+      "                                                    trackr::record(ev$value, symorpos = length(histry()))", sep="\n")
+      } else { "" },
+      "                                            }),",
+      "                             print = FALSE))"
+      ), collapse = "\n")
+}
+
+parseEval =  function(txt) eval(parse(text=txt))
+
+
+
 ##' evaltracer
-##'
+##' 
 ##' @rdname tracers
 ##' @export
 evaltracer = function(on=TRUE, record = FALSE) {
     if(on) {
-        if(record)
-            stopifnot(requireNamespace("trackr"))
-
         if(record) {
-            suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
-                                   ##where = asNamespace("evaluate"),
-                                   at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
-                                                      expr2 = deparse(expr)
-                                                      histry_addinfo(expr = expr2,
-                                                                     class = class(ev$value))
-                                                      if(ev$visible)
-                                                          record(ev$value, symorpos = length(histry()))
-                                                  }),
-                                   print = FALSE
-                                   )
-                             )
-        } else {
-            suppressMessages(trace(evaluate:::evaluate_call, #"evaluate_call",
-                                   ##where = asNamespace("evaluate"),
-                                   at = length(as.list(body(evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-                                   tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
-                                                      expr2 = deparse(expr)
-                                                      histry_addinfo(expr = expr2,
-                                                                     class = class(ev$value))
-                                                  }),
-                                   print = FALSE
-                                   )
-                             )
-        }            
+            if(!requireNamespace("trackr"))
+                stop("Can't have record=TRUE without the trackr package installed")
+        }
+
+        ev_call = eval(ev_call_expr)
+        ev_call_len = length(as.list(body(eval(ev_call_expr))))
+        ## the things I do to make CRAN/R CMD check happy...
+        
+        parseEval(trc_code_txt(record))
+        ## if(record) {
+        ##     suppressMessages(trace(ev_call, ##evaluate:::evaluate_call, #"evaluate_call",
+        ##                            ##where = asNamespace("evaluate"),
+        ##                            at = ev_call_len,##list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
+        ##                            tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
+        ##                                               expr2 = deparse(expr)
+        ##                                               histry_addinfo(expr = expr2,
+        ##                                                              class = class(ev$value))
+        ##                                               if(ev$visible)
+        ##                                                   record(ev$value, symorpos = length(histry()))
+        ##                                           }),
+        ##                            print = FALSE
+        ##                            )
+        ##                      )
+        ## } else {
+        ##     suppressMessages(trace(ev_call, #obfu_colons("evaluate", "evaluate_call"), ##evaluate:::evaluate_call, #"evaluate_call",
+        ##                            ##where = asNamespace("evaluate"),
+        ##                            at = length(as.list(body(ev_call))), ##evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
+        ##                            tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
+        ##                                               expr2 = deparse(expr)
+        ##                                               histry_addinfo(expr = expr2,
+        ##                                                              class = class(ev$value))
+        ##                                           }),
+        ##                            print = FALSE
+        ##                            )
+        ##                      )
+        ## }            
     } else {
-        suppressMessages(untrace(evaluate:::evaluate_call))
+        ##suppressMessages(untrace(ev_call_expr))# obfu_colons("evaluate", "evaluate_call"))) #ev_call))##evaluate:::evaluate_call))
+        suppressMessages(eval(ev_call_untrace))
     }
 }
 
 
 
 #' @name KnitrHistoryTracker
-#' @title A reference class for tracking code history in a knitr document
 #' @docType methods
-#' @exportClass "KnitrHistoryTracker"
+#' @exportClass KnitrHistoryTracker
+#' @rdname HistoryTracker
+#' @aliases KnitrHistoryTracker-class
 
 kh_tracker = setRefClass("KnitrHistoryTracker",
                          contains = "VirtHistoryTracker",
