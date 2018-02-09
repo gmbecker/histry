@@ -1,4 +1,4 @@
-#' @import methods
+#' @import methods evaluate
 #' @importFrom utils tail
 
 
@@ -139,7 +139,6 @@ knitrtracer = function(on, record = FALSE) {
     }
 }
 
-obfu_colons = eval(parse(text = paste0("`", paste(rep(":", times=3),collapse = ""), "`")))
 ev_call_txt = paste0("evaluate:", "::evaluate_call")
 ev_call_expr = parse(text = ev_call_txt)
 ev_call_untrace = parse(text = paste0("untrace(", ev_call_txt, ")"))
@@ -174,42 +173,42 @@ evaltracer = function(on=TRUE, record = FALSE) {
             if(!requireNamespace("trackr"))
                 stop("Can't have record=TRUE without the trackr package installed")
         }
-
-        ev_call = eval(ev_call_expr)
-        ev_call_len = length(as.list(body(eval(ev_call_expr))))
-        ## the things I do to make CRAN/R CMD check happy...
-        
-        parseEval(trc_code_txt(record))
-        ## if(record) {
-        ##     suppressMessages(trace(ev_call, ##evaluate:::evaluate_call, #"evaluate_call",
-        ##                            ##where = asNamespace("evaluate"),
-        ##                            at = ev_call_len,##list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-        ##                            tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
-        ##                                               expr2 = deparse(expr)
-        ##                                               histry_addinfo(expr = expr2,
-        ##                                                              class = class(ev$value))
-        ##                                               if(ev$visible)
-        ##                                                   record(ev$value, symorpos = length(histry()))
-        ##                                           }),
-        ##                            print = FALSE
-        ##                            )
-        ##                      )
-        ## } else {
-        ##     suppressMessages(trace(ev_call, #obfu_colons("evaluate", "evaluate_call"), ##evaluate:::evaluate_call, #"evaluate_call",
-        ##                            ##where = asNamespace("evaluate"),
-        ##                            at = length(as.list(body(ev_call))), ##evaluate:::evaluate_call))),#list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
-        ##                            tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
-        ##                                               expr2 = deparse(expr)
-        ##                                               histry_addinfo(expr = expr2,
-        ##                                                              class = class(ev$value))
-        ##                                           }),
-        ##                            print = FALSE
-        ##                            )
-        ##                      )
-        ## }            
+        evc = get("evaluate_call", asNamespace("evaluate"))
+        if(!inherits(evc, "functionWithTrace")) {
+            ev_call_len = length(as.list(body(get("evaluate_call", asNamespace("evaluate")))))
+            ## the things I do to make CRAN/R CMD check happy...
+            
+            if(record) {
+                suppressMessages(trace("evaluate_call",
+                                       where = asNamespace("evaluate"),
+                                       at = ev_call_len,##list(c(28, 4,4)), ## FRAGILE!!!!!!!!!!!
+                                       tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
+                                                          expr2 = deparse(expr)
+                                                          histry_addinfo(expr = expr2,
+                                                                     class = class(ev$value))
+                                                          if(ev$visible)
+                                                              record(ev$value, symorpos = length(histry()))
+                                                      }),
+                                       print = FALSE
+                                       )
+                                 )
+            } else {
+                suppressMessages(trace("evaluate_call", 
+                                       where = asNamespace("evaluate"),
+                                       at = ev_call_len,
+                                       tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
+                                                          expr2 = deparse(expr)
+                                                          histry_addinfo(expr = expr2,
+                                                                         class = class(ev$value))
+                                                      }),
+                                       print = FALSE
+                                       )
+                                 )
+            }
+        }
     } else {
+        suppressMessages(untrace("evaluate_call", where = asNamespace("evaluate")))
         ##suppressMessages(untrace(ev_call_expr))# obfu_colons("evaluate", "evaluate_call"))) #ev_call))##evaluate:::evaluate_call))
-        suppressMessages(eval(ev_call_untrace))
     }
 }
 
