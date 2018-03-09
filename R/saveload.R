@@ -1,4 +1,10 @@
-saveHistry = function(trackr = histry_tracker(), append = TRUE, file = "./.histry.rds") {
+##' @title Save and load Histry data
+##' @param trackr a history tracker object
+##' @param append logical. Should any history already saved to \code{file} be retained when the new history is saved. defaults to TRUE
+##' @param file character. The file to save your history within. When loading, assumed to be an RDS file. when saving, written as an RDS file.
+##' @export
+##' @rdname saveload
+saveHistry = function(file = "./histry.rds", append = TRUE, trackr = histry_tracker()){
     out = hData(trackr)
     
     if(append && file.exists(file)) {
@@ -7,7 +13,8 @@ saveHistry = function(trackr = histry_tracker(), append = TRUE, file = "./.histr
     }
     saveRDS(out, file = file)
 }
-
+##' @rdname saveload
+##' @export
 loadHistry = function(file = "./.histry.rds", trackr = histry_tracker()) {
     trackr$importHistory(impdata = file)
 }
