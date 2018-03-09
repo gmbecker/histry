@@ -1,7 +1,7 @@
 Package: histry
 Type: Package
 Title: Enhanced Command History Tracking for R Sessions and Dynamic Documents
-Version: 0.1.1
+Version: 0.1.2.1
 Date: 2018-02-08
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
@@ -15,8 +15,8 @@ Depends:
 Suggests:
     CodeDepends,
     rmarkdown,
-    knitr,
-    trackr
+    trackr,
+    knitr
 Imports:
     fastdigest,
     evaluate
@@ -27,4 +27,5 @@ Collate:
     'history.R'
     'tracking.R'
     'zzz.R'
+    'saveload.R'
 RoxygenNote: 6.0.1

@@ -15,19 +15,21 @@ historyTracker = function(id = "history_tracker") {
 #' @aliases knitr_tracker
 #' @export
 knitrTracker = function() {
+    if(!requireNamespace("knitr", quietly=TRUE))
+        return(NULL)
     kh_tracker$new()
 }
 
 setMethod("show", "VirtHistoryTracker",
           function(object) {
 
-    if(is.language(object$exprs) && length(object$exprs) >0)
-        msg = deparse(object$exprs)
-    else if (length(object$exprs) > 1)
-        msg = paste(tail(object$exprs,5), collapse="\n")
+    if(is.language(exprs(object)) && length(exprs(object)) >0)
+        msg = deparse(exprs(object))
+    else if (length(exprs(object)) > 1)
+        msg = paste(tail(exprs(object),5), collapse="\n")
     else
         msg = "No messages in history record"
     cat("A history tracker of class", class(object), "\nRecent expressions:",
-        msg, "\n(For full history do obj$exprs)\n")
+        msg, "\n(For full history do exprs(obj))\n")
 })
 

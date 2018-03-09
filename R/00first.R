@@ -25,7 +25,7 @@ histropts = function() histrstate$histropts
 ##' @rdname histry
 ##' @export
 
-histry = function() histry_tracker()$exprs
+histry = function() exprs(histry_tracker())
 
 ##' @rdname histry
 ##' @export
