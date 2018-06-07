@@ -19,7 +19,8 @@ Suggests:
     knitr
 Imports:
     fastdigest,
-    evaluate
+    evaluate,
+    roprov
 VignetteBuilder: knitr
 Collate:
     '00first.R'
@@ -28,4 +29,5 @@ Collate:
     'tracking.R'
     'zzz.R'
     'saveload.R'
+    'prov.R'
 RoxygenNote: 6.0.1
