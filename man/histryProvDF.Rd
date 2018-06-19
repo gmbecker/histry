@@ -4,7 +4,7 @@
 \alias{histryProvDF}
 \title{Generate ProvStoreDF from histry}
 \usage{
-histryProvDF()
+histryProvDF(tracker = histry_tracker())
 }
 \value{
 a ProvStoreDF object
