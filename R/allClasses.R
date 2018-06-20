@@ -1,5 +1,5 @@
 #' @import methods evaluate
-#' @importFrom utils tail
+#' @importFrom utils tail head
 
 
 
@@ -7,7 +7,7 @@
 ht_callback = function(expr, value, success, printed, tracker) {
     if(!success)
         return(TRUE)
-    tracker$addInfo(expr = expr, class = head(class(value), 1), hash = fastdigest(value))
+    tracker$addInfo(expr = expr, class = utils::head(class(value), 1), hash = fastdigest(value))
     TRUE
 }
 
@@ -34,31 +34,6 @@ setClass("HistoryData", representation = list(exprs = "ANY", classes = "characte
 
 vh_tracker = setRefClass("VirtHistoryTracker",
                          fields = c(hdata = "HistoryData",
-                         ##            exprs = function(val) {
-                         ##     if(missing(val))
-                         ##         exprs(.self)
-                         ##     else 
-                         ##                #exprs(.self) = val
-                         ##         .self$hdata@exprs = val
-                         ## },
-                         ## classes = function(val) {
-                         ##     if(missing(val))
-                         ##        ret_classes(.self)
-                         ##     else 
-                         ##                #ret_classes(.self) = val
-                         ##         .self$hdata@classes
-                         ## },
-                         ## hashes = function(val) {
-                         ##    if(missing(val))
-                         ##        hashes(.self)
-                         ##    else
-                         ##                #hashes(.self) = val
-                         ##        .self$hdata@hashes
-                         ##    },
-                           
-                         ##   exprs = "ANY",
-                         ##   classes = "character",
-                         ##    hashes = "character",
                                    tracking = "logical"),
                         methods = list(
                             addInfo = function(expr, class, hash, envir = .GlobalEnv) {
@@ -72,28 +47,10 @@ vh_tracker = setRefClass("VirtHistoryTracker",
                                 return(NULL)
                             newdat= new("HistoryData", exprs = expr, classes = class, hashes = hash)
                             .self$hdata = combineHistry(hData(.self), newdat)
-                            
-                           ##  if(is.null(.self$exprs))
-                           ##      exprs(.self) = list(expr)
-                           ##  else
-                           ##      exprs(.self) = c(.self$exprs, expr)
-                           ## ret_classes(.self) = c(ret_classes.self$classes, class)
-
-                           ##  if(is.character(expr))
-                           ##      pexpr = parse(text = expr)
-                           ##  else if(is.expression(expr))
-                           ##      pexpr = expr[[1]]
-                           ##  else
-                           ##      pexpr = expr
-                            
-                            
                         },
                         toggleTracking = function() stop("Not implemented on virtual class"),
                         clear = function() {
                             .self$hdata = new("HistoryData")
-                            ## .self$exprs = NULL
-                        ##     .self$classes = character()
-                        ##     .self$hashes = character()
                         },
                         filter = function(syms = ls(ns, all.names=TRUE), ns = emptyenv()) {
                             
@@ -131,10 +88,6 @@ h_tracker = setRefClass("HistoryTracker",
                             obj$tracking = FALSE
                             obj$toggleTracking()
                             obj
-                            ## .self$id = id
-                            ## .self$tracking = FALSE
-                            ## .self$toggleTracking()
-                            ## .self
                         },
                         toggleTracking = function() {
                             if(.self$tracking) {
@@ -208,7 +161,7 @@ evaltracer = function(on=TRUE, record = FALSE) {
                                        tracer = quote(if( histropts()$inKnitr && !is(ev$value, "try-error")) {
                                                           expr2 = deparse(expr)
                                                           histry_addinfo(expr = expr2,
-                                                                     class = head(class(ev$value), 1), hash = fastdigest::fastdigest(ev$value))
+                                                                     class = utils::head(class(ev$value), 1), hash = fastdigest::fastdigest(ev$value))
                                                           if(ev$visible)
                                                               record(ev$value, symorpos = length(histry()))
                                                       }),
@@ -222,7 +175,7 @@ evaltracer = function(on=TRUE, record = FALSE) {
                                        tracer = quote(if(histropts()$inKnitr && !is(ev$value, "try-error")) {
                                                           expr2 = deparse(expr)
                                                           histry_addinfo(expr = expr2,
-                                                                         class = head(class(ev$value), 1), hash = fastdigest::fastdigest(ev$value))
+                                                                         class = utils::head(class(ev$value), 1), hash = fastdigest::fastdigest(ev$value))
                                                       }),
                                        print = FALSE
                                        )
