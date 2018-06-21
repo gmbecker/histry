@@ -236,17 +236,30 @@ state = setRefClass("HistryState",
 ##' @param obj The object to access components of.
 ##' @export
 setGeneric("exprs", function(obj) standardGeneric("exprs"))
+##' @rdname accessors
+##' @export
+##' @aliases exprs,HistoryData
 setMethod("exprs", "HistoryData", function(obj) obj@exprs)
+##' @rdname accessors
+##' @export
+##' @aliases exprs,VirtHistoryTracker
 setMethod("exprs", "VirtHistoryTracker", function(obj) exprs(hData(obj)))
 
 ##' @rdname accessors
+##' @param value The new value for the field.
 ##' @export
 ##' @aliases exprs<-
 setGeneric("exprs<-", function(obj, value) standardGeneric("exprs<-"))
+##' @rdname accessors
+##' @export
+##' @aliases exprs<-,HistoryData
 setMethod("exprs<-", "HistoryData", function(obj, value) {
     obj@exprs = value
     obj
 })
+##' @rdname accessors
+##' @export
+##' @aliases exprs<-,VirtHistoryTracker
 setMethod("exprs<-", "VirtHistoryTracker", function(obj, value) {
     
     tmp = hData(obj)
@@ -261,7 +274,13 @@ setMethod("exprs<-", "VirtHistoryTracker", function(obj, value) {
 ##' @export
 ##' @aliases ret_classes
 setGeneric("ret_classes", function(obj) standardGeneric("ret_classes"))
+##' @rdname accessors
+##' @export
+##' @aliases ret_classes,HistoryData
 setMethod("ret_classes", "HistoryData", function(obj) obj@classes)
+##' @rdname accessors
+##' @export
+##' @aliases ret_classes,VirtHistoryTracker
 setMethod("ret_classes", "VirtHistoryTracker", function(obj) ret_classes(hData(obj)))
 
 ##' @rdname accessors
@@ -269,10 +288,18 @@ setMethod("ret_classes", "VirtHistoryTracker", function(obj) ret_classes(hData(o
 ##' @aliases ret_classes<-
 
 setGeneric("ret_classes<-", function(obj, value) standardGeneric("ret_classes<-"))
+
+##' @rdname accessors
+##' @export
+##' @aliases ret_classes<-,HistoryData
 setMethod("ret_classes<-", "HistoryData", function(obj, value) {
     obj@classes = value
     obj
 })
+##' @rdname accessors
+##' @export
+##' @aliases ret_classes<-,VirtHistoryTracker
+
 setMethod("ret_classes<-", "VirtHistoryTracker", function(obj, value) {
     tmp = hData(obj)
     ret_classes(tmp) <- value
@@ -285,17 +312,31 @@ setMethod("ret_classes<-", "VirtHistoryTracker", function(obj, value) {
 ##' @export
 ##' @aliases hashes
 setGeneric("hashes", function(obj) standardGeneric("hashes"))
+
+##' @rdname accessors
+##' @export
+##' @aliases hashes,HistoryData
 setMethod("hashes", "HistoryData", function(obj) obj@hashes)
+
+##' @rdname accessors
+##' @export
+##' @aliases hashes,VirtHistoryTracker
 setMethod("hashes", "VirtHistoryTracker", function(obj) hashes(hData(obj)))
 
 ##' @rdname accessors
 ##' @export
 ##' @aliases hashes<-
 setGeneric("hashes<-", function(obj, value) standardGeneric("hashes<-"))
+##' @rdname accessors
+##' @export
+##' @aliases hashes<-,HistoryData
 setMethod("hashes<-", "HistoryData", function(obj, value) {
     obj@hashes = value
     obj
 })
+##' @rdname accessors
+##' @export
+##' @aliases hashes<-,VirtHistoryTracker
 setMethod("hashes<-", "VirtHistoryTracker", function(obj, value) {
     tmp = hData(obj)
     hashes(tmp) <- value
@@ -307,14 +348,26 @@ setMethod("hashes<-", "VirtHistoryTracker", function(obj, value) {
 ##' @export
 ##' @aliases hData
 setGeneric("hData", function(obj) standardGeneric("hData"))
+##' @rdname accessors
+##' @export
+##' @aliases hData,HistoryData
 setMethod("hData", "HistoryData", function(obj) obj)
+##' @rdname accessors
+##' @export
+##' @aliases hData,VirtHistoryTracker
 setMethod("hData", "VirtHistoryTracker", function(obj) obj$hdata)
 
 ##' @rdname accessors
 ##' @export
 ##' @aliases hData<-
 setGeneric("hData<-", function(obj, value) standardGeneric("hData<-"))
+##' @rdname accessors
+##' @export
+##' @aliases hData<-,HistoryData
 setMethod("hData<-", "HistoryData", function(obj, value) value)
+##' @rdname accessors
+##' @export
+##' @aliases hData<-,VirtHistoryTracker
 setMethod("hData<-", "VirtHistoryTracker", function(obj, value) {
     obj$hdata = value
     obj

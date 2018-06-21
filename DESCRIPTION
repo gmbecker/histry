@@ -1,7 +1,7 @@
 Package: histry
 Type: Package
 Title: Enhanced Command History Tracking for R Sessions and Dynamic Documents
-Version: 0.2.1
+Version: 0.2.2
 Date: 2018-02-08
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
@@ -13,14 +13,14 @@ License: Artistic-2.0
 Depends:
     methods
 Suggests:
-    CodeDepends,
     rmarkdown,
     trackr,
     knitr
 Imports:
     fastdigest,
     evaluate,
-    roprov
+    roprov,
+    CodeDepends	
 VignetteBuilder: knitr
 Collate:
     '00first.R'

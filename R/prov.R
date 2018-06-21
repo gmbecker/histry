@@ -10,6 +10,7 @@ is.code = function(x) is.function(x) || is.expression(x) || is.call(x) || is.nam
 ##' @title Generate ProvStoreDF from histry
 ##' @description Generates a tabular 'provenance store' from the history
 ##' of evaluated expressions captured by histry
+##' @param tracker The HistoryTracker object to mine for the prov table information.
 ##' @return a ProvStoreDF object
 ##' @export
 histryProvDF = function(tracker = histry_tracker()) {

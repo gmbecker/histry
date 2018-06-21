@@ -1,4 +1,5 @@
 ##' @title Save and load Histry data
+##' @description Save and load Histry data. Experimental.
 ##' @param trackr a history tracker object
 ##' @param append logical. Should any history already saved to \code{file} be retained when the new history is saved. defaults to TRUE
 ##' @param file character. The file to save your history within. When loading, assumed to be an RDS file. when saving, written as an RDS file.

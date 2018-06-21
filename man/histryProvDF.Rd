@@ -6,6 +6,9 @@
 \usage{
 histryProvDF(tracker = histry_tracker())
 }
+\arguments{
+\item{tracker}{The HistoryTracker object to mine for the prov table information.}
+}
 \value{
 a ProvStoreDF object
 }

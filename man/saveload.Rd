@@ -17,3 +17,6 @@ loadHistry(file = "./.histry.rds", trackr = histry_tracker())
 
 \item{trackr}{a history tracker object}
 }
+\description{
+Save and load Histry data. Experimental.
+}
