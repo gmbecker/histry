@@ -5,5 +5,7 @@ l = 5
 y = rnorm(x)
 w = 10
 z = y + w
-k = l + 7
+k = l + mtcars$wt
 provstore = histryProvDF()
+library(roprov)
+gr = fullprovgraph(provstore)

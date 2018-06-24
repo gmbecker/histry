@@ -53,7 +53,7 @@ histryProvDF = function(tracker = histry_tracker()) {
                                       outvarclasses = outclasses[i])
         }
     }
-    do.call(rbind, rows)
+    do.call(ProvStores, rows)
 }
 
 

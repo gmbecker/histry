@@ -2,7 +2,7 @@ Package: histry
 Type: Package
 Title: Enhanced Command History Tracking for R Sessions and Dynamic Documents
 Version: 0.2.2
-Date: 2018-02-08
+Date: 2018-06-22
 Authors@R: person("Gabriel", "Becker", role = c("aut", "cre"),
         email = "becker.gabriel@gene.com")
 Copyright: Genentech Inc
